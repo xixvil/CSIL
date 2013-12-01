@@ -24,6 +24,7 @@ namespace CSIL
             public SignalFunction function; // функция сигнала
             private SignalFunctionParams WaveParams; // параметры функции сигнала
             long sample = 0; // текущий сэмпл (номер числового значения уровня сигнала на выходе)
+            private Object thisLock = new Object(); //нужно для критической секции
 
             // конструктор класса
             public WaveProvider(int SampleRate, int NumOfChannels, SignalFunction function, SignalFunctionParams WaveParams)
@@ -46,12 +47,15 @@ namespace CSIL
             public int Read(byte[] buffer, int offset, int count)
             {
                 WaveBuffer waveBuffer = new WaveBuffer(buffer); // создаём новый буффер
-                
-                for (int n = 0; n < count / 4; n++) // в одном float-значении четыре байта, поэтому длинна буффера в байтах = длина в float * 4
+
+                lock (thisLock) // критическая секция
                 {
-                    waveBuffer.FloatBuffer[n + (offset / 4)] = (float)(function((float)sample / WaveFormat.SampleRate, WaveParams)); // вызываем для каждого значения нашу функцию, передавая ей текущее время в секундах от начала проигрывания и параметры
-                    sample++; // увеличиваем номер сэмпла
-                    if (sample >= (Int64.MaxValue - 1)) sample = 0; // дошли до предела Int64 - сбрасываем в ноль
+                    for (int n = 0; n < count / 4; n++) // в одном float-значении четыре байта, поэтому длинна буффера в байтах = длина в float * 4
+                    {
+                        waveBuffer.FloatBuffer[n + (offset / 4)] = (float)(function((float)sample / WaveFormat.SampleRate, WaveParams)); // вызываем для каждого значения нашу функцию, передавая ей текущее время в секундах от начала проигрывания и параметры
+                        sample++; // увеличиваем номер сэмпла
+                        if (sample >= (Int64.MaxValue - 1)) sample = 0; // дошли до предела Int64 - сбрасываем в ноль
+                    }
                 }
                 return count; // возвращаем количество сгенерированных сэмплов
             }

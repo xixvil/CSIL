@@ -1,4 +1,8 @@
 ﻿using System;
+using System.IO;
+using System.Text;
+using System.Threading;
+using System.Collections;
 using System.Windows.Forms;
 using CSIL;
 
@@ -9,6 +13,9 @@ namespace Computer_Skin_Interface
         SkinInterface SI; // экземпляр класса интерфейса
         SignalParams SP; // экземпляр класса с параметрами функции сигнала
         SkinInterface.SoundDevice[] Devices; // список аудиоустройств
+        FileSystemWatcher FSW; // экземпляр FileSystemWatcher
+        long LatestFileSize; // последний размер логфайла
+        Queue DataQueue; // очеред комманд, поступивших из логфайла
 
         public Main()
         {
@@ -45,6 +52,38 @@ namespace Computer_Skin_Interface
                 ResultValue = (float)(2 * Math.Asin(BaseValue) / Math.PI); // По этой формуле http://en.wikipedia.org/wiki/Triangle_wave#Definitions
 
             return Parameters.Amplitude * ResultValue; // масштабируем умножением на амплитуду
+        }
+
+        // Хэндлер события "файл был изменён"
+        private void Watcher(object sender, FileSystemEventArgs e)
+        {
+            int count = 0; // количество попыток открыть файл на чтение
+            bool success = false; // был ли файл успешно открыт
+
+            while (count < 5 && !success) // делаем 5 попыток открыть файл
+            {
+                try
+                {
+                    using (FileStream stream = File.Open(tbLogFile.Text, FileMode.Open, FileAccess.Read, FileShare.ReadWrite)) // открываем файл
+                    {
+                        if (stream.Length >= LatestFileSize) // если его длина стала больше, то
+                        {
+                            StreamReader reader = new StreamReader(stream);
+                            stream.Position = LatestFileSize; // устанавливаем позицию для считывания старый конец файла
+                            string new_line = reader.ReadToEnd(); // и считываем до нового конца, т.е. получаем то, что только что было записано в файл
+                            if (new_line.StartsWith("***to_interface")) DataQueue.Enqueue(new_line); // если это что-то начинается на ключевую фразу, то добавляем это в очередь на обработку
+                            LatestFileSize = stream.Length; // устанавливаем указатель конца файла на новый конец
+                        }
+                        stream.Close(); // закрываем поток
+                    }
+                    success = true; // удалось прочитать
+                }
+                catch (IOException) // если не получилось
+                {
+                    Thread.Sleep(50); // ждём 50 миллисекунд
+                }
+                count++; // увеличиваем номер попытки
+            }
         }
 
         // загрузка программы
@@ -150,6 +189,65 @@ namespace Computer_Skin_Interface
         private void Main_FormClosing(object sender, FormClosingEventArgs e)
         {
             SI.StopSignal();
+        }
+
+        // запуск интерфейса с порталом
+        private void btLogWatcherStart_Click(object sender, EventArgs ea)
+        {
+            try
+            {
+                LatestFileSize = (new FileInfo(tbLogFile.Text)).Length; // узнаём последнюю длину файла
+                FSW = new FileSystemWatcher(Path.GetDirectoryName(tbLogFile.Text), Path.GetFileName(tbLogFile.Text)); // создаём экземпляр FileSystemWatcher, настроенный на логфайл портала
+            }
+            catch (IOException e) // если чего-то пошло не так - выдадим сообщение об ошибке
+            {
+                MessageBox.Show("Can't open file " + tbLogFile.Text + "!", "", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;    
+            }
+            btLogWatcherStart.Enabled = false;
+            btLogWatcherStop.Enabled = true;
+            btOpen.Enabled = false;
+            tbLogFile.Enabled = false;
+            DataQueue = new Queue(); // создаём очередь
+            FSW.Changed += new FileSystemEventHandler(Watcher); // устанавливаем обработчик событий файла
+            FSW.EnableRaisingEvents = true; // запускаем слежение за файлом
+            LogTimer.Enabled = true;
+        }
+
+        // остановка интерфейса с порталом
+        private void btLogWatcherStop_Click(object sender, EventArgs e)
+        {
+            btLogWatcherStart.Enabled = true;
+            btLogWatcherStop.Enabled = false;
+            btOpen.Enabled = true;
+            tbLogFile.Enabled = true;
+            LogTimer.Enabled = false;
+            FSW.EnableRaisingEvents = false; // отключаем слежение за файлом
+            FSW.Dispose(); // уничтожаем объект
+        }
+
+        // выбор логфайла портала
+        private void btOpen_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog.ShowDialog();
+            if (OpenFileDialog.FileName != "")
+                tbLogFile.Text = OpenFileDialog.FileName;
+        }
+
+        // обработка очереди накопившихся комманд, производится 30 раз за секунду
+        private void LogTimer_Tick(object sender, EventArgs e)
+        {
+            int Amplitude; // переменная для амплитуды
+
+            if (DataQueue.Count != 0) // если в очереди есть комманды
+            {
+                string command = DataQueue.Dequeue().ToString(); // берём первую комманду
+                tbLog.AppendText("[" + DateTime.Now.ToString("hh:mm:ss") + "]" + command); // печатаем её в лог
+                string[] parts = command.Split(' '); // делим на части по пробелу
+                
+                if (int.TryParse(parts[1], out Amplitude)) // пытаемся распарсить число из комманды как целое, это будет амплитуда
+                    tbAmplitude.Value = Amplitude; // устанавливаем ползунок амплитуды на вычисленную позицию
+            }
         }
     }
 }

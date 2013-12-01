@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Main));
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.lbAmplitude = new System.Windows.Forms.Label();
@@ -53,6 +54,16 @@
             this.rbTriangle = new System.Windows.Forms.RadioButton();
             this.rbSquare = new System.Windows.Forms.RadioButton();
             this.rbSine = new System.Windows.Forms.RadioButton();
+            this.groupBox5 = new System.Windows.Forms.GroupBox();
+            this.btOpen = new System.Windows.Forms.Button();
+            this.tbLogFile = new System.Windows.Forms.TextBox();
+            this.label3 = new System.Windows.Forms.Label();
+            this.groupBox6 = new System.Windows.Forms.GroupBox();
+            this.tbLog = new System.Windows.Forms.TextBox();
+            this.btLogWatcherStop = new System.Windows.Forms.Button();
+            this.btLogWatcherStart = new System.Windows.Forms.Button();
+            this.OpenFileDialog = new System.Windows.Forms.OpenFileDialog();
+            this.LogTimer = new System.Windows.Forms.Timer(this.components);
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.tbAmplitude)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.tbFrequency)).BeginInit();
@@ -63,6 +74,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox3)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
+            this.groupBox5.SuspendLayout();
+            this.groupBox6.SuspendLayout();
             this.SuspendLayout();
             // 
             // groupBox1
@@ -340,11 +353,106 @@
             this.rbSine.UseVisualStyleBackColor = true;
             this.rbSine.CheckedChanged += new System.EventHandler(this.rbSine_CheckedChanged);
             // 
+            // groupBox5
+            // 
+            this.groupBox5.Controls.Add(this.btOpen);
+            this.groupBox5.Controls.Add(this.tbLogFile);
+            this.groupBox5.Controls.Add(this.label3);
+            this.groupBox5.Controls.Add(this.groupBox6);
+            this.groupBox5.Controls.Add(this.btLogWatcherStop);
+            this.groupBox5.Controls.Add(this.btLogWatcherStart);
+            this.groupBox5.Location = new System.Drawing.Point(9, 329);
+            this.groupBox5.Name = "groupBox5";
+            this.groupBox5.Size = new System.Drawing.Size(634, 187);
+            this.groupBox5.TabIndex = 3;
+            this.groupBox5.TabStop = false;
+            this.groupBox5.Text = "Portal 2 Interface :)";
+            // 
+            // btOpen
+            // 
+            this.btOpen.Location = new System.Drawing.Point(399, 21);
+            this.btOpen.Name = "btOpen";
+            this.btOpen.Size = new System.Drawing.Size(31, 20);
+            this.btOpen.TabIndex = 7;
+            this.btOpen.Text = "...";
+            this.btOpen.UseVisualStyleBackColor = true;
+            this.btOpen.Click += new System.EventHandler(this.btOpen_Click);
+            // 
+            // tbLogFile
+            // 
+            this.tbLogFile.Location = new System.Drawing.Point(65, 21);
+            this.tbLogFile.Name = "tbLogFile";
+            this.tbLogFile.Size = new System.Drawing.Size(335, 20);
+            this.tbLogFile.TabIndex = 6;
+            this.tbLogFile.Text = "C:\\Program Files (x86)\\Portal 2\\portal2\\csil.log";
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(15, 25);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(44, 13);
+            this.label3.TabIndex = 5;
+            this.label3.Text = "Log file:";
+            // 
+            // groupBox6
+            // 
+            this.groupBox6.Controls.Add(this.tbLog);
+            this.groupBox6.Location = new System.Drawing.Point(11, 47);
+            this.groupBox6.Name = "groupBox6";
+            this.groupBox6.Size = new System.Drawing.Size(611, 128);
+            this.groupBox6.TabIndex = 4;
+            this.groupBox6.TabStop = false;
+            this.groupBox6.Text = "Direct log";
+            // 
+            // tbLog
+            // 
+            this.tbLog.BackColor = System.Drawing.Color.Black;
+            this.tbLog.Font = new System.Drawing.Font("Lucida Console", 11.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.tbLog.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
+            this.tbLog.Location = new System.Drawing.Point(10, 17);
+            this.tbLog.Multiline = true;
+            this.tbLog.Name = "tbLog";
+            this.tbLog.ReadOnly = true;
+            this.tbLog.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
+            this.tbLog.Size = new System.Drawing.Size(590, 101);
+            this.tbLog.TabIndex = 0;
+            // 
+            // btLogWatcherStop
+            // 
+            this.btLogWatcherStop.Location = new System.Drawing.Point(536, 20);
+            this.btLogWatcherStop.Name = "btLogWatcherStop";
+            this.btLogWatcherStop.Size = new System.Drawing.Size(86, 22);
+            this.btLogWatcherStop.TabIndex = 3;
+            this.btLogWatcherStop.Text = "Stop";
+            this.btLogWatcherStop.UseVisualStyleBackColor = true;
+            this.btLogWatcherStop.Click += new System.EventHandler(this.btLogWatcherStop_Click);
+            // 
+            // btLogWatcherStart
+            // 
+            this.btLogWatcherStart.Location = new System.Drawing.Point(444, 20);
+            this.btLogWatcherStart.Name = "btLogWatcherStart";
+            this.btLogWatcherStart.Size = new System.Drawing.Size(86, 22);
+            this.btLogWatcherStart.TabIndex = 2;
+            this.btLogWatcherStart.Text = "Start";
+            this.btLogWatcherStart.UseVisualStyleBackColor = true;
+            this.btLogWatcherStart.Click += new System.EventHandler(this.btLogWatcherStart_Click);
+            // 
+            // OpenFileDialog
+            // 
+            this.OpenFileDialog.SupportMultiDottedExtensions = true;
+            // 
+            // LogTimer
+            // 
+            this.LogTimer.Interval = 3;
+            this.LogTimer.Tick += new System.EventHandler(this.LogTimer_Tick);
+            // 
             // Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(656, 330);
+            this.ClientSize = new System.Drawing.Size(652, 528);
+            this.Controls.Add(this.groupBox5);
             this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBox1);
@@ -367,6 +475,10 @@
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox3)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
+            this.groupBox5.ResumeLayout(false);
+            this.groupBox5.PerformLayout();
+            this.groupBox6.ResumeLayout(false);
+            this.groupBox6.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -397,6 +509,16 @@
         private System.Windows.Forms.PictureBox pictureBox1;
         private System.Windows.Forms.PictureBox pictureBox3;
         private System.Windows.Forms.PictureBox pictureBox2;
+        private System.Windows.Forms.GroupBox groupBox5;
+        private System.Windows.Forms.Button btLogWatcherStop;
+        private System.Windows.Forms.Button btLogWatcherStart;
+        private System.Windows.Forms.GroupBox groupBox6;
+        private System.Windows.Forms.TextBox tbLog;
+        private System.Windows.Forms.TextBox tbLogFile;
+        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.Button btOpen;
+        private System.Windows.Forms.OpenFileDialog OpenFileDialog;
+        private System.Windows.Forms.Timer LogTimer;
     }
 }
 
