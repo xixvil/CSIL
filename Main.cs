@@ -71,7 +71,10 @@ namespace Computer_Skin_Interface
                             StreamReader reader = new StreamReader(stream);
                             stream.Position = LatestFileSize; // устанавливаем позицию для считывания старый конец файла
                             string new_line = reader.ReadToEnd(); // и считываем до нового конца, т.е. получаем то, что только что было записано в файл
-                            if (new_line.StartsWith("***to_interface")) DataQueue.Enqueue(new_line); // если это что-то начинается на ключевую фразу, то добавляем это в очередь на обработку
+                            string[] lines = new_line.Split('\n'); // то что считалось - не обязательно одна строка, поэтому разобьём это в массив по переводу строки
+                            for(int i = 0; i < lines.Length; i++) // пройдёмся по массиву
+                                if (lines[i].StartsWith("***to_interface")) // если это что-то начинается на ключевую фразу, то
+                                    DataQueue.Enqueue(lines[i].Trim()); // чистим и добавляем в очередь на обработку
                             LatestFileSize = stream.Length; // устанавливаем указатель конца файла на новый конец
                         }
                         stream.Close(); // закрываем поток
@@ -242,7 +245,7 @@ namespace Computer_Skin_Interface
             if (DataQueue.Count != 0) // если в очереди есть комманды
             {
                 string command = DataQueue.Dequeue().ToString(); // берём первую комманду
-                tbLog.AppendText("[" + DateTime.Now.ToString("hh:mm:ss") + "]" + command); // печатаем её в лог
+                tbLog.AppendText("[" + DateTime.Now.ToString("hh:mm:ss") + "] " + command + "\r\n"); // печатаем её в лог
                 string[] parts = command.Split(' '); // делим на части по пробелу
                 
                 if (int.TryParse(parts[1], out Amplitude)) // пытаемся распарсить число из комманды как целое, это будет амплитуда
